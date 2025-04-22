@@ -24,7 +24,12 @@ app.get("/", function (req, res) {
 });
 
 app.get("/dashboard", function (req, res) {
+    if(req.oidc.isAuthenticated()){
+        console.log(req.oidc.user);
   res.send("Hello welcome to Dashboard");
+}else{
+    res.redirect("/login");
+}
 });
 
 app.get("/Aamir", function (req, res) {
