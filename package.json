@@ -11,9 +11,11 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@faker-js/faker": "^9.7.0",
     "dotenv": "^16.4.7",
     "ejs": "^3.1.10",
     "express": "^5.1.0",
-    "express-openid-connect": "^2.18.0"
+    "express-openid-connect": "^2.18.0",
+    "mongoose": "^8.14.1"
   }
 }
