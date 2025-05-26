@@ -19,12 +19,14 @@ const config = {
   issuerBaseURL: process.env.issuerBaseURL,
 };
 
-mongoose.connect(process.env.mongodb_uri).then(()=>{
-  console.log("Connected to MongoDB");
-}).catch((err)=>{
-  console.log(err);
-});
-
+mongoose
+  .connect(process.env.mongodb_uri)
+  .then(() => {
+    console.log("Connected to MongoDB");
+  })
+  .catch((err) => {
+    console.log(err);
+  });
 
 app.set("view engine", "ejs");
 app.use(auth(config));
@@ -35,44 +37,66 @@ app.get("/", function (req, res) {
 });
 
 app.get("/items", async function (req, res) {
-  const page = parseInt(req.query.page) || 1
-  const limit = parseInt (req.query.limit) || 10
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
   const skip = (page - 1) * limit;
   const count = await Product.countDocuments();
-  const products = await Product.find().sort({createdAt: -1}).skip(skip).limit(limit)
+  const products = await Product.find()
+    .sort({ createdAt: -1 })
+    .skip(skip)
+    .limit(limit);
   res.json({
-    page,totalpages:Math.ceil(count/limit),
-products
-
-
-  })
+    page,
+    totalpages: Math.ceil(count / limit),
+    products,
+  });
 });
-app.post( "/item", async function (req,res) {
+app.post("/item", async function (req, res) {
   const data = req.body;
-const currentData = new Product(data);
-const savedData= await currentData.save();
-
-
-
+  const currentData = new Product(data);
+  const savedData = await currentData.save();
 
   res.send(savedData);
+});
 
-
-})
-
-app.get("/items/top/:count",async function (req,res){
-
-  var count= req.params.count;
+app.get("/items/top/:count", async function (req, res) {
+  var count = req.params.count;
   const items = await Product.find({}).limit(count);
-  res.json({items});
-
-  
-})
-
-
+  res.json({ items });
+});
 
 app.get("/Aamir", function (req, res) {
   res.send("Hello Aamir");
+});
+
+app.get("/dashboard", async (req, res) => {
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 12;
+  const searchTerm = req.query.q || "";
+
+  const filter = searchTerm
+    ? { name: { $regex: searchTerm, $options: "i" } }
+    : {};
+
+  const totalCount = await Product.countDocuments(filter);
+  const products = await Product.find(filter)
+    .sort({ createdAt: -1 })
+    .skip((page - 1) * limit)
+    .limit(limit);
+
+  res.render("dashboard.ejs", {
+    products,
+    currentPage: page,
+    totalPages: Math.ceil(totalCount / limit),
+    searchTerm,
+  });
+});
+
+app.get("/ayush", (req, res) => {
+  let arr = ["Monday", "Tuesday", "Wednesday"];
+  let name = "Ayush";
+
+  res.render("ayush", { arr, name });
 });
 
 app.listen(process.env.PORT, function () {
